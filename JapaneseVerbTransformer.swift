@@ -1,13 +1,11 @@
 //
 //  JapaneseVerbTransformer.swift
-//  MaxCommunicator
 //
 //  Created by Vijaya Prakash Kandel on 6/29/15.
 //  Copyright © 2015 Vijaya Prakash Kandel. All rights reserved.
 //
 
 import Foundation
-
 
 enum JPVerbGroup:Int{
     case one = 1
@@ -39,14 +37,11 @@ class JapaneseVerbTransformer:NSObject{
     let desuEndings = ["desu","deshita"]
     var masuEndingsRomaji = [String]()
     
-    
     override init() {
         super.init()
         configureFirst()
     }
     
-    
-    //configure First
     func configureFirst(){
         for index in masuEndidngs{
             masuEndingsRomaji.append(self.convertAnyJapaneseToRomaji(index))
@@ -84,7 +79,6 @@ class JapaneseVerbTransformer:NSObject{
         return nil
     }
     
-    
     private func determineGroupOfRootVerb(verb:String)->JPVerbGroup{
         let romajiVerb = convertAnyJapaneseToRomaji(verb).lowercaseString
         
@@ -109,7 +103,6 @@ class JapaneseVerbTransformer:NSObject{
             return JPVerbGroup.one
         }
         
-        
         let last3Char = romajiVerb.substringFromIndex(advance(romajiVerb.endIndex, -3))
         
         if last3Char != "iru" && last3Char != "eru"{
@@ -124,7 +117,6 @@ class JapaneseVerbTransformer:NSObject{
                 //is not in the exception
                 return JPVerbGroup.two
             }
-            
         }
     }
     
@@ -140,7 +132,6 @@ class JapaneseVerbTransformer:NSObject{
             //trim the masu
             verb = verb.componentsSeparatedByString(index).first!
             
-            
             //if the verb contains
             if verb.containsChar("来") {//|| verb.contains("する"){
                 return JPVerbGroup.three
@@ -150,7 +141,6 @@ class JapaneseVerbTransformer:NSObject{
             if verb.substringFromIndex(advance(verb.endIndex, -1)) == "し"{
                 return JPVerbGroup.three
             }
-            
             
             let romajiVerb = convertAnyJapaneseToRomaji(verb).lowercaseString
             //FIXME:-Research
@@ -200,7 +190,6 @@ class JapaneseVerbTransformer:NSObject{
         }else{
             return nil
         }
-        
         
         //Check to sepeater masu or root or invalid one
         if !isVerbInMasuForm(verb) && isVerbInRootForm(verb){
@@ -264,7 +253,6 @@ class JapaneseVerbTransformer:NSObject{
         var romajiMasuVerb = convertAnyJapaneseToRomaji(masuVerb).lowercaseString
         
         //trim the mas.... part
-        
         for index in masuEndingsRomaji{
             if romajiMasuVerb.hasSuffix(index){
                 romajiMasuVerb = romajiMasuVerb.stringByReplacingOccurrencesOfString(index, withString: "", options: NSStringCompareOptions.BackwardsSearch, range: nil)
@@ -315,7 +303,7 @@ class JapaneseVerbTransformer:NSObject{
             return nil
         }
         
-        //Preserving the Kanji part
+        //Convert preserving the Kanji part
         var kanjiPart:String?
         var romajiRoot:String?
         
@@ -407,9 +395,7 @@ class JapaneseVerbTransformer:NSObject{
             }
 
             japaneseRoot = originalVerb
-//            println("Verb:\(verb)    root:\(originalVerb)  rootRomaji:\(hiraganaOfRoot)")
         }
-        
         
         return (romajiRoot!, japaneseRoot)
     }
@@ -627,12 +613,9 @@ class JapaneseVerbTransformer:NSObject{
             }
         }
         
-        if let v = getTrimmedVerbByCheckingForVerbValidity(verb){
-            verb = v
-        }else{
-            return nil  //bad verb
-        }
-        
+        guard let v = getTrimmedVerbByCheckingForVerbValidity(verb) else{ return nil  //bad verb }
+        verb = v
+    
         let romanijedVerb = convertAnyJapaneseToRomaji(verb)
         
         //check if the verb has masu endings
@@ -657,9 +640,6 @@ class JapaneseVerbTransformer:NSObject{
         return parts
     }
 }
-
-
-
 
 
 
@@ -778,6 +758,7 @@ extension JapaneseVerbTransformer{
 
 
 //MARK:- Conveinence methods for string transformation
+//This extension is dependent on another library
 extension JapaneseVerbTransformer{
     
     func convertKanjiToHiragana(kanji:String)->String{
@@ -796,7 +777,6 @@ extension JapaneseVerbTransformer{
     func convertKanjiToRomaji(kanji:String) -> String{
         return (kanji as NSString).stringByTransliteratingJapaneseToRomaji()
     }
-    
     
     //From Romaji
     func convertRomajiToHiragana(romaji:String) -> String{
@@ -834,22 +814,18 @@ extension String{
         println(self)
     }
     
-    
     //For ease in swift 1.2
     //swift 2 does allow something like string.characters.contains("") but swift 1.2 doesnot
     func containsChar(char:String)->Bool{
         
-        if count(char) != 1{
-            return false
-        }
+        guard count(char) == 1 else{ return false }
         
         for character in self{
             if "\(character)" == char{
                 return true
             }
         }
-        
-        //came here because not found
+
         return false
     }
 }
